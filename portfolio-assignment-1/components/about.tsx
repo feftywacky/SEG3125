@@ -3,7 +3,7 @@ export default function About() {
     <section id="about" className="py-20">
       <div className="max-w-3xl mx-auto">
         <h2 className="text-3xl font-bold mb-8 text-center">
-          <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">About Me</span>
+          <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">About Me</span>
         </h2>
         <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-sm">
           <p className="text-gray-700 mb-4">

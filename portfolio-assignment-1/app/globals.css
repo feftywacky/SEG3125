@@ -6,6 +6,9 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 250, 250, 252;
   --background-end-rgb: 255, 255, 255;
+  --gradient-start: 120, 100%, 50%; /* Green */
+  --gradient-mid: 240, 100%, 50%; /* Blue */
+  --gradient-end: 280, 100%, 50%; /* Purple */
 }
 
 body {

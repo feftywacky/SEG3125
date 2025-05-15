@@ -26,20 +26,20 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <Link
             href="/"
-            className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
+            className="text-xl font-bold bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent"
           >
-            Feiyu's Portfolio
+            Personal Portfolio
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <Link href="#about" className="text-gray-700 hover:text-purple-600 transition-colors">
+            <Link href="#about" className="text-gray-700 hover:text-green-600 transition-colors">
               About
             </Link>
-            <Link href="#experience" className="text-gray-700 hover:text-purple-600 transition-colors">
+            <Link href="#experience" className="text-gray-700 hover:text-green-600 transition-colors">
               Experience
             </Link>
-            <Link href="#projects" className="text-gray-700 hover:text-purple-600 transition-colors">
+            <Link href="#projects" className="text-gray-700 hover:text-green-600 transition-colors">
               Projects
             </Link>
           </nav>
@@ -57,21 +57,21 @@ export default function Navbar() {
           <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
             <Link
               href="#about"
-              className="text-gray-700 hover:text-purple-600 transition-colors"
+              className="text-gray-700 hover:text-green-600 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               About
             </Link>
             <Link
               href="#experience"
-              className="text-gray-700 hover:text-purple-600 transition-colors"
+              className="text-gray-700 hover:text-green-600 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Experience
             </Link>
             <Link
               href="#projects"
-              className="text-gray-700 hover:text-purple-600 transition-colors"
+              className="text-gray-700 hover:text-green-600 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Projects

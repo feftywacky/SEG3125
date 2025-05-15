@@ -24,15 +24,6 @@ export default function Footer() {
               <Linkedin size={20} />
               <span className="sr-only">LinkedIn</span>
             </a>
-            {/* <a
-              href="https://twitter.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 hover:text-purple-600 transition-colors"
-            >
-              <Twitter size={20} />
-              <span className="sr-only">Twitter</span>
-            </a> */}
             <a href="mailto:your.email@example.com" className="text-gray-600 hover:text-purple-600 transition-colors">
               <Mail size={20} />
               <span className="sr-only">Email</span>

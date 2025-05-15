@@ -2,7 +2,7 @@ export default function Hero() {
   return (
     <section className="py-20 md:py-32 flex flex-col items-center justify-center text-center">
       <h1 className="text-4xl md:text-6xl font-bold mb-6">
-        <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+        <span className="bg-gradient-to-r from-green-500 to-blue-500 bg-clip-text text-transparent">
           Hello, I'm Feiyu
         </span>
       </h1>
@@ -12,7 +12,7 @@ export default function Hero() {
       <div className="flex flex-wrap gap-4 justify-center">
         <a
           href="#projects"
-          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-medium hover:opacity-90 transition-opacity"
+          className="px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-full font-medium hover:opacity-90 transition-opacity"
         >
           View My Experience
         </a>
