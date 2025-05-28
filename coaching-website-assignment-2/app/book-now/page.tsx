@@ -48,7 +48,7 @@ export default function BookNowPage() {
             </div>
             <h2 className="text-2xl font-bold mb-4 text-green-400">Booking Confirmed!</h2>
             <p className="text-gray-300 mb-6">
-              Thank you for booking with LOLCoachUp! We'll contact you within 24 hours to schedule your session.
+              Thank you for booking with LOLCoachUp! We&apos;ll contact you within 24 hours to schedule your session.
             </p>
             <Link href="/">
               <Button className="bg-green-600 hover:bg-green-700 text-white rounded-full px-8">Return Home</Button>
@@ -69,7 +69,7 @@ export default function BookNowPage() {
           <div className="text-center mb-8">
             <h1 className="text-4xl lg:text-5xl font-bold mb-4">Book Your Coaching Session</h1>
             <p className="text-xl text-gray-300">
-              Fill out the form below and we'll match you with the perfect coach for your needs.
+              Fill out the form below and we&apos;ll match you with the perfect coach for your needs.
             </p>
           </div>
 

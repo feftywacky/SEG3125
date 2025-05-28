@@ -139,9 +139,9 @@ export default function PricingPage() {
               </p>
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-3 text-green-400">What if I'm not satisfied?</h3>
+              <h3 className="text-xl font-semibold mb-3 text-green-400">What if I&apos;m not satisfied?</h3>
               <p className="text-gray-300">
-                We offer a 100% satisfaction guarantee. If you're not happy with your session, we'll provide a full
+                We offer a 100% satisfaction guarantee. If you&apos;re not happy with your session, we&apos;ll provide a full
                 refund or reschedule with a different coach.
               </p>
             </div>
