@@ -59,7 +59,6 @@ export default function MemoryGame() {
   const [startTime, setStartTime] = useState<number>(0)
   const [endTime, setEndTime] = useState<number>(0)
   const [currentTime, setCurrentTime] = useState<number>(0)
-  const [isGameComplete, setIsGameComplete] = useState(false)
 
   const createCards = useCallback((theme: Theme, difficulty: Difficulty): GameCard[] => {
     const { pairs } = difficultySettings[difficulty]
@@ -85,7 +84,6 @@ export default function MemoryGame() {
     setIncorrectAttempts(0)
     setStartTime(Date.now())
     setEndTime(0)
-    setIsGameComplete(false)
     setGameState("playing")
   }
 
@@ -146,7 +144,6 @@ export default function MemoryGame() {
     const totalPairs = difficultySettings[selectedDifficulty].pairs
     if (matchedPairs === totalPairs && matchedPairs > 0) {
       setEndTime(Date.now())
-      setIsGameComplete(true)
       setTimeout(() => setGameState("completed"), 1000)
     }
   }, [matchedPairs, selectedDifficulty])
@@ -160,7 +157,6 @@ export default function MemoryGame() {
     setStartTime(0)
     setEndTime(0)
     setCurrentTime(0)
-    setIsGameComplete(false)
   }
 
   const formatTime = (ms: number) => {
