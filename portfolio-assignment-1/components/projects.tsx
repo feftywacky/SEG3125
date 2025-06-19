@@ -14,12 +14,12 @@ export default function Projects() {
     },
     {
       id: "project-2",
-      title: "Chess Game",
+      title: "Memory Game",
       description:
-        "An interactive chess game with AI opponent, move validation, and game history tracking. Features both single-player and online multiplayer modes.",
-      tags: ["JavaScript", "React", "Socket.io", "Chess.js"],
-      image: "/chess.jpeg?height=600&width=800",
-      // No external URL, will use internal routing
+        "An interactive Memory game with multi level and multi theme cards. Excellent way to exercise your brain.",
+      tags: ["JavaScript", "React", "Next.js", "CSS"],
+      image: "/memory.png?height=600&width=800",
+      externalUrl: "https://seg-3125-a3.vercel.app/",
     },
     {
       id: "project-3",
