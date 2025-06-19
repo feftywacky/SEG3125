@@ -17,35 +17,35 @@ interface GameCard {
 
 const themes = {
   nature: [
-    "/placeholder.svg?height=120&width=120&text=🌲",
-    "/placeholder.svg?height=120&width=120&text=🌸",
-    "/placeholder.svg?height=120&width=120&text=🍄",
-    "/placeholder.svg?height=120&width=120&text=🦋",
-    "/placeholder.svg?height=120&width=120&text=🌿",
-    "/placeholder.svg?height=120&width=120&text=🌺",
-    "/placeholder.svg?height=120&width=120&text=🍀",
-    "/placeholder.svg?height=120&width=120&text=🌻",
-    "/placeholder.svg?height=120&width=120&text=🌵",
-    "/placeholder.svg?height=120&width=120&text=🌾",
+    "🌲",
+    "🌸",
+    "🍄",
+    "🦋",
+    "🌿",
+    "🌺",
+    "🍀",
+    "🌻",
+    "🌵",
+    "🌾",
   ],
   ocean: [
-    "/placeholder.svg?height=120&width=120&text=🐠",
-    "/placeholder.svg?height=120&width=120&text=🐙",
-    "/placeholder.svg?height=120&width=120&text=🦈",
-    "/placeholder.svg?height=120&width=120&text=🐚",
-    "/placeholder.svg?height=120&width=120&text=🦀",
-    "/placeholder.svg?height=120&width=120&text=🐢",
-    "/placeholder.svg?height=120&width=120&text=🦑",
-    "/placeholder.svg?height=120&width=120&text=🐋",
-    "/placeholder.svg?height=120&width=120&text=🦭",
-    "/placeholder.svg?height=120&width=120&text=🐡",
+    "🐠",
+    "🐙",
+    "🦈",
+    "🐚",
+    "🦀",
+    "🐢",
+    "🦑",
+    "🐋",
+    "🦭",
+    "🐡",
   ],
 }
 
 const difficultySettings = {
-  easy: { pairs: 5, gridCols: 5 },
-  medium: { pairs: 8, gridCols: 4 },
-  hard: { pairs: 10, gridCols: 5 },
+  easy: { pairs: 6, gridCols: 4 },    // 6 pairs = 12 cards in 4x3 grid
+  medium: { pairs: 8, gridCols: 4 },  // 8 pairs = 16 cards in 4x4 grid
+  hard: { pairs: 12, gridCols: 6 },   // 12 pairs = 24 cards in 6x4 grid
 }
 
 export default function MemoryGame() {
@@ -58,6 +58,7 @@ export default function MemoryGame() {
   const [incorrectAttempts, setIncorrectAttempts] = useState(0)
   const [startTime, setStartTime] = useState<number>(0)
   const [endTime, setEndTime] = useState<number>(0)
+  const [currentTime, setCurrentTime] = useState<number>(0)
   const [isGameComplete, setIsGameComplete] = useState(false)
 
   const createCards = useCallback((theme: Theme, difficulty: Difficulty): GameCard[] => {
@@ -67,12 +68,13 @@ export default function MemoryGame() {
 
     return cardPairs
       .map((image, index) => ({
-        id: index,
+        id: index, // Each card gets a unique ID based on its position
         image,
         isFlipped: false,
         isMatched: false,
       }))
       .sort(() => Math.random() - 0.5)
+      .map((card, index) => ({ ...card, id: index })) // Reassign IDs after shuffle to ensure uniqueness
   }, [])
 
   const startGame = () => {
@@ -99,10 +101,12 @@ export default function MemoryGame() {
 
     if (newFlippedCards.length === 2) {
       const [firstId, secondId] = newFlippedCards
-      const firstCard = cards[firstId]
-      const secondCard = cards[secondId]
+      // Get the current cards to check for match
+      const currentCards = cards.map((card) => (card.id === cardId ? { ...card, isFlipped: true } : card))
+      const firstCard = currentCards.find(card => card.id === firstId)
+      const secondCard = currentCards.find(card => card.id === secondId)
 
-      if (firstCard.image === secondCard.image) {
+      if (firstCard && secondCard && firstCard.image === secondCard.image) {
         // Match found
         setTimeout(() => {
           setCards((prev) =>
@@ -124,6 +128,20 @@ export default function MemoryGame() {
     }
   }
 
+  // Timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (gameState === "playing" && startTime > 0) {
+      interval = setInterval(() => {
+        setCurrentTime(Date.now())
+      }, 100)
+    }
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [gameState, startTime])
+
+  // Game completion effect
   useEffect(() => {
     const totalPairs = difficultySettings[selectedDifficulty].pairs
     if (matchedPairs === totalPairs && matchedPairs > 0) {
@@ -141,6 +159,7 @@ export default function MemoryGame() {
     setIncorrectAttempts(0)
     setStartTime(0)
     setEndTime(0)
+    setCurrentTime(0)
     setIsGameComplete(false)
   }
 
@@ -252,7 +271,13 @@ export default function MemoryGame() {
           <div className="flex justify-between items-center mb-8 text-lg font-semibold text-gray-700">
             <div>Theme: {selectedTheme.charAt(0).toUpperCase() + selectedTheme.slice(1)}</div>
             <div className="text-center">
-              {incorrectAttempts > 0 && <div className="text-red-600 font-bold text-xl">Incorrect</div>}
+              <div className="text-blue-600 font-bold text-xl mb-2">
+                Time: {formatTime(currentTime - startTime)}
+              </div>
+              <div className="text-purple-600">
+                Matched: {matchedPairs}/{difficultySettings[selectedDifficulty].pairs}
+              </div>
+              {incorrectAttempts > 0 && <div className="text-red-600 font-bold text-xl">Incorrect Attempts: {incorrectAttempts}</div>}
             </div>
             <div>Difficulty: {selectedDifficulty.charAt(0).toUpperCase() + selectedDifficulty.slice(1)}</div>
           </div>
@@ -261,7 +286,8 @@ export default function MemoryGame() {
           <div
             className={`grid gap-4 justify-center mb-8`}
             style={{
-              gridTemplateColumns: `repeat(${gridCols}, minmax(0, 140px))`,
+              gridTemplateColumns: `repeat(${gridCols}, minmax(0, 120px))`,
+              gridTemplateRows: `repeat(${Math.ceil(cards.length / gridCols)}, minmax(0, 120px))`,
               maxWidth: `${gridCols * 140}px`,
               margin: "0 auto",
             }}
@@ -276,11 +302,9 @@ export default function MemoryGame() {
               >
                 <div className="w-full h-full flex items-center justify-center p-2">
                   {card.isFlipped || card.isMatched ? (
-                    <img
-                      src={card.image || "/placeholder.svg"}
-                      alt="Memory card"
-                      className="w-full h-full object-cover rounded"
-                    />
+                    <div className="text-8xl select-none">
+                      {card.image}
+                    </div>
                   ) : (
                     <div className="w-full h-full bg-blue-400 rounded flex items-center justify-center">
                       <div className="w-full h-full bg-gradient-to-br from-blue-300 to-blue-500 rounded opacity-80 flex items-center justify-center">
@@ -341,7 +365,8 @@ export default function MemoryGame() {
               <div
                 className={`grid gap-4 justify-center`}
                 style={{
-                  gridTemplateColumns: `repeat(${difficultySettings[selectedDifficulty].gridCols}, minmax(0, 140px))`,
+                  gridTemplateColumns: `repeat(${difficultySettings[selectedDifficulty].gridCols}, minmax(0, 120px))`,
+                  gridTemplateRows: `repeat(${Math.ceil(cards.length / difficultySettings[selectedDifficulty].gridCols)}, minmax(0, 120px))`,
                   maxWidth: `${difficultySettings[selectedDifficulty].gridCols * 140}px`,
                   margin: "0 auto",
                 }}
@@ -349,11 +374,9 @@ export default function MemoryGame() {
                 {cards.map((card) => (
                   <Card key={card.id} className="aspect-square ring-2 ring-green-400">
                     <div className="w-full h-full flex items-center justify-center p-2">
-                      <img
-                        src={card.image || "/placeholder.svg"}
-                        alt="Completed memory card"
-                        className="w-full h-full object-cover rounded"
-                      />
+                      <div className="text-8xl select-none">
+                        {card.image}
+                      </div>
                     </div>
                   </Card>
                 ))}
