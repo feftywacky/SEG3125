@@ -10,7 +10,7 @@ export default function Projects() {
         "A modern e-commerce platform built with Next.js and Tailwind CSS, featuring product listings, cart functionality, and checkout process.",
       tags: ["Next.js", "Tailwind CSS", "Stripe"],
       image: "/ecommerce.jpg?height=600&width=800",
-      externalUrl: "https://example-ecommerce.com", // Added external URL
+      externalUrl: "https://seg-3125-lovat.vercel.app/", // Added external URL
     },
     {
       id: "project-2",
