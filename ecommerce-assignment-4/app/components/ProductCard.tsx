@@ -38,6 +38,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       <div className="p-4">
         <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
+        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
 
         <div className="flex items-center gap-2 mb-2">
           <span className="text-red-500 font-bold">${product.price}</span>

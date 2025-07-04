@@ -17,12 +17,33 @@ export default function CheckoutPage() {
     townCity: "",
     phoneNumber: "",
     emailAddress: "",
+    cardNumber: "",
+    expiryDate: "",
+    cvv: "",
+    cardholderName: "",
   })
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    
+    // Format card number with spaces
+    if (e.target.name === 'cardNumber') {
+      value = value.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
+    }
+    
+    // Format expiry date with slash
+    if (e.target.name === 'expiryDate') {
+      value = value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2');
+    }
+    
+    // Only allow numbers for CVV
+    if (e.target.name === 'cvv') {
+      value = value.replace(/\D/g, '');
+    }
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: value,
     })
   }
 
@@ -38,7 +59,7 @@ export default function CheckoutPage() {
   }
 
   const subtotal = state.total
-  const shipping = 0
+  const shipping = 0 as number
   const total = subtotal + shipping
 
   return (
@@ -118,6 +139,65 @@ export default function CheckoutPage() {
               />
             </div>
 
+            <div className="border-t pt-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Information</h2>
+              
+              <div>
+                <label className="block text-sm text-gray-600 mb-2">Cardholder Name*</label>
+                <input
+                  type="text"
+                  name="cardholderName"
+                  value={formData.cardholderName}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 bg-gray-100 border-0 rounded-md focus:ring-2 focus:ring-red-500 focus:bg-white"
+                />
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-sm text-gray-600 mb-2">Card Number*</label>
+                <input
+                  type="text"
+                  name="cardNumber"
+                  value={formData.cardNumber}
+                  onChange={handleInputChange}
+                  placeholder="1234 5678 9012 3456"
+                  maxLength={19}
+                  required
+                  className="w-full px-4 py-3 bg-gray-100 border-0 rounded-md focus:ring-2 focus:ring-red-500 focus:bg-white"
+                />
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-2">Expiry Date*</label>
+                  <input
+                    type="text"
+                    name="expiryDate"
+                    value={formData.expiryDate}
+                    onChange={handleInputChange}
+                    placeholder="MM/YY"
+                    maxLength={5}
+                    required
+                    className="w-full px-4 py-3 bg-gray-100 border-0 rounded-md focus:ring-2 focus:ring-red-500 focus:bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-2">CVV*</label>
+                  <input
+                    type="text"
+                    name="cvv"
+                    value={formData.cvv}
+                    onChange={handleInputChange}
+                    placeholder="123"
+                    maxLength={4}
+                    required
+                    className="w-full px-4 py-3 bg-gray-100 border-0 rounded-md focus:ring-2 focus:ring-red-500 focus:bg-white"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="flex flex-col space-y-4 pt-6">
               <button
                 type="submit"
@@ -150,6 +230,8 @@ export default function CheckoutPage() {
                 />
                 <div className="flex-1">
                   <h3 className="font-medium text-gray-900">{item.name}</h3>
+                  <p className="text-sm text-gray-600">{item.description}</p>
+                  <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                 </div>
                 <div className="text-gray-900 font-medium">${(item.price * item.quantity).toFixed(2)}</div>
               </div>
