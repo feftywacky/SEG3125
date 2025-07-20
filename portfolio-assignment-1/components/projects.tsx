@@ -32,12 +32,12 @@ export default function Projects() {
     },
     {
       id: "project-4",
-      title: "Weather Dashboard",
+      title: "Crypto Dashboard",
       description:
-        "An interactive weather dashboard that displays current conditions and forecasts with beautiful visualizations.",
-      tags: ["React", "D3.js", "Weather API"],
-      image: "/weather.png?height=600&width=800",
-      // No external URL, will use internal routing
+        "An interactive Crypto dashboard that displays token prices with beautiful visualizations.",
+      tags: ["React", "D3.js", "CoinGecko API"],
+      image: "/crypto.png?height=600&width=800",
+      externalUrl: "https://seg-3125-vh59.vercel.app/",
     },
   ]
 
