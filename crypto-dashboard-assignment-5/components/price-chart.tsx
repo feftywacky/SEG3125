@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 import { useLanguage } from "./language-provider"
-import { fetchPriceHistory, fetchCoinsList } from "@/lib/api"
-import { getNetworkErrorMessage } from "@/lib/network-utils"
-import { Loader2 } from "lucide-react"
+import { fetchPriceHistory } from "@/lib/api"
+import { Loader2, RefreshCw } from "lucide-react"
 
 interface PriceData {
   date: string
@@ -20,83 +20,58 @@ interface Coin {
   symbol: string
 }
 
+// Predefined list of supported cryptocurrencies
+const SUPPORTED_COINS: Coin[] = [
+  { id: "bitcoin", name: "Bitcoin", symbol: "BTC" },
+  { id: "ethereum", name: "Ethereum", symbol: "ETH" },
+  { id: "solana", name: "Solana", symbol: "SOL" },
+  { id: "ripple", name: "XRP", symbol: "XRP" },
+]
+
 export function PriceChart() {
   const { t, language } = useLanguage()
   const [selectedCoin, setSelectedCoin] = useState("bitcoin")
   const [selectedDays, setSelectedDays] = useState("7")
   const [priceData, setPriceData] = useState<PriceData[]>([])
-  const [coins, setCoins] = useState<Coin[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const [retryCount, setRetryCount] = useState(0)
 
-  // No automatic retry - only manual retry through button
+  const loadPriceData = useCallback(async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const data = await fetchPriceHistory(selectedCoin, selectedDays)
+      const formattedData = data.prices.map(([timestamp, price]: [number, number]) => ({
+        date: new Date(timestamp).toLocaleDateString(language === "fr" ? "fr-FR" : "en-US"),
+        price: price,
+        timestamp,
+      }))
+      setPriceData(formattedData)
+    } catch (err) {
+      console.error("Price chart error:", err)
+      let errorMessage = t("error") // fallback
+      
+      if (err instanceof Error) {
+        errorMessage = err.message
+      } else if (typeof err === "string") {
+        errorMessage = err
+      }
+      
+      setError(errorMessage)
+    } finally {
+      setLoading(false)
+    }
+  }, [selectedCoin, selectedDays, t, language])
+
+  const handleRetry = useCallback(() => {
+    loadPriceData()
+  }, [loadPriceData])
 
   useEffect(() => {
-    const loadCoins = async () => {
-      try {
-        const coinsData = await fetchCoinsList()
-        setCoins(coinsData.slice(0, 20)) // Top 20 coins for selection
-        setError("")
-      } catch (err) {
-        console.error('Error loading coins:', err)
-        let errorMessage: string
-        
-        // Check for rate limiting first
-        if (err instanceof Error && (err.message === 'RATE_LIMITED' || err.message.includes('429'))) {
-          errorMessage = "Rate limited: Too many requests. Please wait a few minutes before trying again."
-        } else {
-          errorMessage = err instanceof Error ? getNetworkErrorMessage(err) : t("error")
-        }
-        
-        setError(errorMessage)
-      }
-    }
-    loadCoins()
-  }, [t])
-
-  useEffect(() => {
-    const loadPriceData = async () => {
-      setLoading(true)
-      setError("")
-      try {
-        const data = await fetchPriceHistory(selectedCoin, selectedDays)
-        const formattedData = data.prices.map(([timestamp, price]: [number, number]) => ({
-          date: new Date(timestamp).toLocaleDateString(language === "fr" ? "fr-FR" : "en-US"),
-          price: price,
-          timestamp,
-        }))
-        setPriceData(formattedData)
-        setRetryCount(0) // Reset retry count on success
-      } catch (err) {
-        console.error('Error loading price data:', err)
-        let errorMessage: string
-        
-        // Check for rate limiting first
-        if (err instanceof Error && (err.message === 'RATE_LIMITED' || err.message.includes('429'))) {
-          errorMessage = "Rate limited: Too many requests. Please wait a few minutes before trying again."
-        } else {
-          errorMessage = err instanceof Error ? getNetworkErrorMessage(err) : t("error")
-        }
-        
-        setError(errorMessage)
-        // Keep previous data if available to avoid empty chart
-        if (priceData.length === 0) {
-          setPriceData([])
-        }
-      } finally {
-        setLoading(false)
-      }
-    }
-
     if (selectedCoin) {
       loadPriceData()
     }
-  }, [selectedCoin, selectedDays, t, language, retryCount]) // Removed priceData.length dependency as it would cause infinite loops
-
-  const handleRetry = () => {
-    setRetryCount(prev => prev + 1)
-  }
+  }, [selectedCoin, selectedDays, loadPriceData])
 
   const formatPrice = (value: number) => {
     return new Intl.NumberFormat(language === "fr" ? "fr-FR" : "en-US", {
@@ -107,11 +82,11 @@ export function PriceChart() {
     }).format(value)
   }
 
-  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ value: number; payload: { name: string } }> }) => {
+  const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white/95 backdrop-blur-sm p-3 rounded-lg border border-gray-200 shadow-lg">
-          <p className="text-gray-600 text-sm">{payload[0].payload.name}</p>
+          <p className="text-gray-600 text-sm">{label}</p>
           <p className="text-blue-600 font-semibold">{`${t("price")}: ${formatPrice(payload[0].value)}`}</p>
         </div>
       )
@@ -130,7 +105,7 @@ export function PriceChart() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {coins.map((coin) => (
+              {SUPPORTED_COINS.map((coin) => (
                 <SelectItem key={coin.id} value={coin.id}>
                   {coin.name} ({coin.symbol.toUpperCase()})
                 </SelectItem>
@@ -158,19 +133,23 @@ export function PriceChart() {
       {/* Chart */}
       <div className="h-80 w-full">
         {loading ? (
-          <div className="flex flex-col items-center justify-center h-full space-y-4">
-            <Loader2 className="w-12 h-12 animate-spin text-blue-400" />
-            <span className="text-white/80">{t("loading")}</span>
+          <div className="flex items-center justify-center h-full">
+            <Loader2 className="w-8 h-8 animate-spin text-white" />
+            <span className="ml-2 text-white">{t("loading")}</span>
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center h-full space-y-4">
-            <span className="text-red-400 text-center">{error}</span>
-            <button 
-              onClick={handleRetry}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-            >
-              {t("retry")}
-            </button>
+            <div className="text-center">
+              <p className="text-red-400 mb-2">{error}</p>
+              <Button 
+                onClick={handleRetry}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={loading}
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                {t("retry")}
+              </Button>
+            </div>
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">

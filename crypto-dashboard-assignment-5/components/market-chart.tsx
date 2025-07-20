@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 import { useLanguage } from "./language-provider"
 import { fetchMarketData } from "@/lib/api"
-import { getNetworkErrorMessage } from "@/lib/network-utils"
-import { Loader2 } from "lucide-react"
+import { Loader2, RefreshCw } from "lucide-react"
 
 interface MarketData {
   id: string
@@ -19,52 +19,51 @@ interface MarketData {
   price_change_percentage_24h: number
 }
 
+// Supported cryptocurrency IDs
+const SUPPORTED_COIN_IDS = ["bitcoin", "ethereum", "solana", "ripple"]
+
 export function MarketChart() {
   const { t, language } = useLanguage()
-  const [selectedCount, setSelectedCount] = useState("10")
+  const [selectedCount, setSelectedCount] = useState("4")
   const [selectedMetric, setSelectedMetric] = useState("market_cap")
   const [marketData, setMarketData] = useState<MarketData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const [retryCount, setRetryCount] = useState(0)
 
-  // No automatic retry - only manual retry through button
+  const loadMarketData = useCallback(async () => {
+    setLoading(true)
+    setError("")
+    try {
+      // Fetch more data to ensure we get all supported coins
+      const data = await fetchMarketData(20)
+      // Filter to only show supported cryptocurrencies
+      const filteredData = data
+        .filter((coin: MarketData) => SUPPORTED_COIN_IDS.includes(coin.id))
+        .slice(0, Number.parseInt(selectedCount))
+      setMarketData(filteredData)
+    } catch (err) {
+      console.error("Market chart error:", err)
+      let errorMessage = t("error") // fallback
+      
+      if (err instanceof Error) {
+        errorMessage = err.message
+      } else if (typeof err === "string") {
+        errorMessage = err
+      }
+      
+      setError(errorMessage)
+    } finally {
+      setLoading(false)
+    }
+  }, [selectedCount, t])
+
+  const handleRetry = useCallback(() => {
+    loadMarketData()
+  }, [loadMarketData])
 
   useEffect(() => {
-    const loadMarketData = async () => {
-      setLoading(true)
-      setError("")
-      try {
-        const data = await fetchMarketData(Number.parseInt(selectedCount))
-        setMarketData(data)
-        setRetryCount(0) // Reset retry count on success
-      } catch (err) {
-        console.error('Error loading market data:', err)
-        let errorMessage: string
-        
-        // Check for rate limiting first
-        if (err instanceof Error && (err.message === 'RATE_LIMITED' || err.message.includes('429'))) {
-          errorMessage = "Rate limited: Too many requests. Please wait a few minutes before trying again."
-        } else {
-          errorMessage = err instanceof Error ? getNetworkErrorMessage(err) : t("error")
-        }
-        
-        setError(errorMessage)
-        // Keep previous data if available
-        if (marketData.length === 0) {
-          setMarketData([])
-        }
-      } finally {
-        setLoading(false)
-      }
-    }
-
     loadMarketData()
-  }, [selectedCount, t, retryCount]) // Removed marketData.length dependency as it would cause infinite loops
-
-  const handleRetry = () => {
-    setRetryCount(prev => prev + 1)
-  }
+  }, [loadMarketData])
 
   const formatValue = (value: number, metric: string) => {
     if (metric === "market_cap" || metric === "total_volume") {
@@ -82,13 +81,7 @@ export function MarketChart() {
     return selectedMetric === "market_cap" ? t("marketCap") : t("volume")
   }
 
-  const CustomTooltip = ({ active, payload }: { 
-    active?: boolean; 
-    payload?: Array<{ 
-      value: number; 
-      payload: MarketData; 
-    }> 
-  }) => {
+  const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (
@@ -124,9 +117,9 @@ export function MarketChart() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="5">{t("top5")}</SelectItem>
-              <SelectItem value="10">{t("top10")}</SelectItem>
-              <SelectItem value="20">{t("top20")}</SelectItem>
+              <SelectItem value="2">Top 2</SelectItem>
+              <SelectItem value="3">Top 3</SelectItem>
+              <SelectItem value="4">All 4</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -148,19 +141,23 @@ export function MarketChart() {
       {/* Chart */}
       <div className="h-80 w-full">
         {loading ? (
-          <div className="flex flex-col items-center justify-center h-full space-y-4">
-            <Loader2 className="w-12 h-12 animate-spin text-green-400" />
-            <span className="text-white/80">{t("loading")}</span>
+          <div className="flex items-center justify-center h-full">
+            <Loader2 className="w-8 h-8 animate-spin text-white" />
+            <span className="ml-2 text-white">{t("loading")}</span>
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center h-full space-y-4">
-            <span className="text-red-400 text-center">{error}</span>
-            <button 
-              onClick={handleRetry}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-            >
-              {t("retry")}
-            </button>
+            <div className="text-center">
+              <p className="text-red-400 mb-2">{error}</p>
+              <Button 
+                onClick={handleRetry}
+                className="bg-green-600 hover:bg-green-700 text-white"
+                disabled={loading}
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                {t("retry")}
+              </Button>
+            </div>
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
