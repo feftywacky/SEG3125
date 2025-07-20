@@ -6,8 +6,9 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Cryptocurrency Dashboard | Tableau de Bord Crypto",
-  description: "Interactive bilingual cryptocurrency dashboard with real-time data visualization",
+  title: "Cryptocurrency Dashboard | SEG3125",
+  description: "Interactive bilingual cryptocurrency market dashboard with real-time data visualization",
+  keywords: "cryptocurrency, bitcoin, ethereum, market data, charts, dashboard",
 }
 
 export default function RootLayout({
@@ -16,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>{children}</body>
     </html>
   )

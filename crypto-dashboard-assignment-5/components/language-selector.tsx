@@ -1,35 +1,31 @@
 "use client"
 
-import { useLanguage } from "./language-provider"
 import { Button } from "@/components/ui/button"
 import { Globe } from "lucide-react"
+import { useLanguage } from "@/lib/language-context"
 
-export function LanguageSelector() {
+export default function LanguageSelector() {
   const { language, setLanguage } = useLanguage()
 
   return (
     <div className="flex items-center gap-2">
-      <Globe className="w-5 h-5 text-white" />
-      <div className="flex bg-white/10 rounded-lg p-1 border border-white/20">
+      <Globe className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+      <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
         <Button
           variant={language === "en" ? "default" : "ghost"}
           size="sm"
           onClick={() => setLanguage("en")}
-          className={`px-3 py-1 text-sm font-medium transition-all ${
-            language === "en" ? "bg-blue-600 text-white shadow-sm" : "text-white hover:bg-white/10"
-          }`}
+          className="rounded-none border-0"
         >
-          EN
+          English
         </Button>
         <Button
           variant={language === "fr" ? "default" : "ghost"}
           size="sm"
           onClick={() => setLanguage("fr")}
-          className={`px-3 py-1 text-sm font-medium transition-all ${
-            language === "fr" ? "bg-blue-600 text-white shadow-sm" : "text-white hover:bg-white/10"
-          }`}
+          className="rounded-none border-0"
         >
-          FR
+          Français
         </Button>
       </div>
     </div>
