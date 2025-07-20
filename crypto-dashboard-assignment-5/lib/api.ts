@@ -1,10 +1,10 @@
 const BASE_URL = "https://api.coingecko.com/api/v3"
 
 // Simple cache implementation
-const cache = new Map<string, { data: any; timestamp: number }>()
+const cache = new Map<string, { data: unknown; timestamp: number }>()
 const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
-function getCachedData(key: string) {
+function getCachedData(key: string): unknown | null {
   const cached = cache.get(key)
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
     console.log(`Using cached data for: ${key}`)
@@ -13,7 +13,7 @@ function getCachedData(key: string) {
   return null
 }
 
-function setCachedData(key: string, data: any) {
+function setCachedData(key: string, data: unknown): void {
   cache.set(key, { data, timestamp: Date.now() })
   console.log(`Cached data for: ${key}`)
 }

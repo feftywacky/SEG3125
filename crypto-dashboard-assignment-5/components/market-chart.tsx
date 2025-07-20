@@ -5,7 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useLanguage } from "./language-provider"
 import { fetchMarketData } from "@/lib/api"
-import { getNetworkErrorMessage, setupNetworkListeners } from "@/lib/network-utils"
+import { getNetworkErrorMessage } from "@/lib/network-utils"
 import { Loader2 } from "lucide-react"
 
 interface MarketData {
@@ -60,7 +60,7 @@ export function MarketChart() {
     }
 
     loadMarketData()
-  }, [selectedCount, t, retryCount])
+  }, [selectedCount, t, retryCount]) // Removed marketData.length dependency as it would cause infinite loops
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1)
@@ -82,7 +82,13 @@ export function MarketChart() {
     return selectedMetric === "market_cap" ? t("marketCap") : t("volume")
   }
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload }: { 
+    active?: boolean; 
+    payload?: Array<{ 
+      value: number; 
+      payload: MarketData; 
+    }> 
+  }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (

@@ -5,7 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useLanguage } from "./language-provider"
 import { fetchPriceHistory, fetchCoinsList } from "@/lib/api"
-import { getNetworkErrorMessage, setupNetworkListeners } from "@/lib/network-utils"
+import { getNetworkErrorMessage } from "@/lib/network-utils"
 import { Loader2 } from "lucide-react"
 
 interface PriceData {
@@ -92,7 +92,7 @@ export function PriceChart() {
     if (selectedCoin) {
       loadPriceData()
     }
-  }, [selectedCoin, selectedDays, t, language, retryCount])
+  }, [selectedCoin, selectedDays, t, language, retryCount]) // Removed priceData.length dependency as it would cause infinite loops
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1)
@@ -107,11 +107,11 @@ export function PriceChart() {
     }).format(value)
   }
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ value: number; payload: { name: string } }> }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white/95 backdrop-blur-sm p-3 rounded-lg border border-gray-200 shadow-lg">
-          <p className="text-gray-600 text-sm">{label}</p>
+          <p className="text-gray-600 text-sm">{payload[0].payload.name}</p>
           <p className="text-blue-600 font-semibold">{`${t("price")}: ${formatPrice(payload[0].value)}`}</p>
         </div>
       )
